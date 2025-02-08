@@ -1,9 +1,12 @@
-import { Button } from "antd";
 import Layout from "./components/Layout";
+import { Route, Routes } from "react-router-dom";
+import Login from "./components/Auth/Login";
 
 const App = () => (
   <Layout>
-    <Button type="primary">Button</Button>
+    <Routes>
+      <Route path="/" element={<Login />} />
+    </Routes>
   </Layout>
 );
 
