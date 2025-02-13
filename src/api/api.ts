@@ -43,6 +43,23 @@ export const isAuthenticated = () => {
   return getToken() !== null;
 };
 
+export const getName = async () => {
+  try {
+    const response = await axiosInstance.get(`${API_URL}auth/users/me/`);
+
+    console.log(response.data);
+
+    if (response.data) {
+      return response.data.username || "Unknown User";
+    } else {
+      return "Unknown User";
+    }
+  } catch (error) {
+    // Handle API request errors
+    console.error("Error fetching user data:", error);
+    return "Unknown User";
+  }
+};
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {

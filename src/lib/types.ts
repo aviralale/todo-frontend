@@ -22,9 +22,15 @@ export interface Task {
 }
 
 export interface Category {
+  id: number;
   name: string;
   created_at: string;
   tasks: Task[];
+}
+
+export interface AuthContextType {
+  isLoggedIn: boolean;
+  setIsLoggedIn: (value: boolean) => void;
 }
 
 export type Categories = Category[];
