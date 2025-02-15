@@ -47,8 +47,6 @@ export const getName = async () => {
   try {
     const response = await axiosInstance.get(`${API_URL}auth/users/me/`);
 
-    console.log(response.data);
-
     if (response.data) {
       return response.data.username || "Unknown User";
     } else {

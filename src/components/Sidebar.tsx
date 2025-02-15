@@ -6,6 +6,7 @@ import { axiosInstance, getName } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import AddCategory from "./AddCategory";
 import AddTask from "./AddTask";
+import Logout from "./Logout";
 
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 const { DirectoryTree } = Tree;
@@ -35,31 +36,24 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axiosInstance.get("/categories");
+      const response = await axiosInstance.get(
+        "http://127.0.0.1:8000/api/categories/user_categories/"
+      );
       setCategories(response.data);
-      setLoading(false);
-    } catch (error) {
-      setError("Failed to fetch categories");
+      setError(null);
+    } catch (err) {
+      setError("Authentication Required!");
+      console.error("Error fetching categories:", err);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axiosInstance.get<Categories>(
-          "http://127.0.0.1:8000/api/categories/user_categories/"
-        );
-        setCategories(response.data);
-        setError(null);
-      } catch (err) {
-        setError("Authentication Required!");
-        console.error("Error fetching categories:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchCategories();
+  }, []);
 
+  useEffect(() => {
     // Fetch the username
     const fetchUserName = async () => {
       try {
@@ -69,23 +63,18 @@ const Sidebar: React.FC<SidebarProps> = () => {
         console.error("Error fetching username:", err);
       }
     };
-
-    fetchCategories();
     fetchUserName();
   }, []);
 
-  const treeData = transformToTreeData(categories);
+  const treeData =
+    categories && categories.length > 0 ? transformToTreeData(categories) : [];
 
   const onSelect: DirectoryTreeProps["onSelect"] = (keys) => {
-    const selectedKey = keys[0] as string; // Get the first selected key
+    const selectedKey = keys[0] as string;
     if (selectedKey.includes("-")) {
-      const taskId = selectedKey.split("-")[1]; // Split the key to get task.id
-      navigate(`/tasks/${taskId}`); // Navigate to the task page
+      const [taskId] = selectedKey.split("-")[1];
+      navigate(`/tasks/${taskId}`);
     }
-  };
-
-  const onExpand: DirectoryTreeProps["onExpand"] = (keys, info) => {
-    console.log("Trigger Expand", keys, info);
   };
 
   if (loading) {
@@ -106,14 +95,10 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <div className=" opacity-0 group-hover:opacity-100 flex">
           <AddTask categories={categories} />
           <AddCategory />
+          <Logout />
         </div>
       </div>
-      <DirectoryTree
-        multiple
-        onSelect={onSelect}
-        onExpand={onExpand}
-        treeData={treeData}
-      />
+      <DirectoryTree multiple onSelect={onSelect} treeData={treeData} />
     </div>
   );
 };

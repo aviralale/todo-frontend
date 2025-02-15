@@ -1,5 +1,5 @@
 import React, { FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { loginUser } from "../../api/api";
 
@@ -7,6 +7,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const togglePassword = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowPassword(!showPassword);
@@ -20,7 +21,7 @@ const Login = () => {
     };
     try {
       loginUser(formData);
-      console.table(formData);
+      navigate("/");
     } catch (error: any) {
       console.log(error);
     }

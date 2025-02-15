@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Modal } from "antd"; // Only using Modal from Ant Design
 import { axiosInstance } from "../api/api";
 import { Categories } from "../lib/types";
+import { FileAddOutlined } from "@ant-design/icons";
 
 interface AddTaskProps {
-  categories: Categories; // List of categories passed as props
+  categories?: Categories; // List of categories passed as props
 }
 
-const AddTask: React.FC<AddTaskProps> = ({ categories }) => {
+const AddTask: React.FC<AddTaskProps> = ({ categories = [] }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -38,7 +39,6 @@ const AddTask: React.FC<AddTaskProps> = ({ categories }) => {
       alert("Failed to add task. Please try again.");
     }
   };
-
   return (
     <>
       <button
@@ -46,13 +46,14 @@ const AddTask: React.FC<AddTaskProps> = ({ categories }) => {
         title="Add Task"
         onClick={() => setIsModalOpen(true)}
       >
-        +
+        <FileAddOutlined />
       </button>
 
       <Modal
         title="Add Task"
         centered
         open={isModalOpen}
+        onOk={handleSubmit}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
       >

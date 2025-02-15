@@ -10,6 +10,8 @@ const TaskPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [editedTask, setEditedTask] = useState<Partial<Task>>({});
+  const [isPreviewMode, setIsPreviewMode] = useState(false); // New state for preview mode
+  const [isCompleted, setIsCompleted] = useState(false); // State for completion status
   const { id } = useParams<{ id: string }>();
 
   // Fetch task data
@@ -18,6 +20,7 @@ const TaskPage = () => {
       const response = await axiosInstance.get<Task>(`${API_URL}tasks/${id}/`);
       setTask(response.data);
       setEditedTask(response.data);
+      setIsCompleted(response.data.is_completed); // Initialize isCompleted from the backend
       setError(null);
     } catch (error) {
       setError("Failed to fetch task. Please try again.");
@@ -94,15 +97,52 @@ const TaskPage = () => {
 
           {/* Description */}
           <div>
-            <textarea
-              name="description"
-              value={editedTask.description || ""}
-              onChange={handleInputChange}
-              onBlur={() => debouncedSave(editedTask)}
-              rows={6}
-              className="block w-full border-none focus:outline-none focus:border-blue-500 resize-none"
-              placeholder="Write something..."
-            />
+            {isPreviewMode ? (
+              // Preview Mode: Render pre-rendered HTML
+              <div
+                className=""
+                onClick={() => setIsPreviewMode(false)} // Click to edit
+                dangerouslySetInnerHTML={{
+                  __html: task.description_html || "",
+                }}
+              />
+            ) : (
+              // Edit Mode: Textarea for editing
+              <textarea
+                name="description"
+                value={editedTask.description || ""}
+                onChange={handleInputChange}
+                onBlur={() => debouncedSave(editedTask)}
+                rows={6}
+                className="block w-full border-none focus:outline-none focus:border-blue-500 resize-none"
+                placeholder="Write something..."
+              />
+            )}
+          </div>
+
+          {/* Toggle Buttons */}
+          <div className="flex justify-between space-x-2 mt-2">
+            {/* Completed/Due Button */}
+            <button
+              onClick={async () => {
+                const newIsCompleted = !isCompleted; // Toggle the state
+                setIsCompleted(newIsCompleted);
+
+                // Send the updated `is_completed` value to the backend
+                await saveTask({ is_completed: newIsCompleted });
+              }}
+              className="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600"
+            >
+              {isCompleted ? "Completed" : "Due"}
+            </button>
+
+            {/* Edit/Preview Button */}
+            <button
+              onClick={() => setIsPreviewMode(!isPreviewMode)}
+              className="px-3 py-1 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-600"
+            >
+              {isPreviewMode ? "Edit" : "Preview"}
+            </button>
           </div>
 
           {/* Saving Indicator */}
